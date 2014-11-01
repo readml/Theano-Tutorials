@@ -15,6 +15,7 @@ def init_weights(shape):
 def rectify(X):
     return T.maximum(X, 0.)
 
+# numerically stable softmax
 def softmax(X):
     e_x = T.exp(X - X.max(axis=1).dimshuffle(0, 'x'))
     return e_x / e_x.sum(axis=1).dimshuffle(0, 'x')
@@ -23,14 +24,17 @@ def RMSprop(cost, params, lr=0.001, rho=0.9, epsilon=1e-6):
     grads = T.grad(cost=cost, wrt=params)
     updates = []
     for p, g in zip(params, grads):
-        acc = theano.shared(p.get_value() * 0.)
+        # running average of the magnitude of the gradient
+        acc = theano.shared(p.get_value() * 0.) # accumulator
         acc_new = rho * acc + (1 - rho) * g ** 2
+        # scale the gradient based on running average (it'll find it faster as it approaches the minimum)
         gradient_scaling = T.sqrt(acc_new + epsilon)
         g = g / gradient_scaling
         updates.append((acc, acc_new))
         updates.append((p, p - lr * g))
     return updates
 
+# randomly drop values and scale (because you removed some, you need to scale to compensate) rest
 def dropout(X, p=0.):
     if p > 0:
         retain_prob = 1 - p

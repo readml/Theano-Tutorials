@@ -15,9 +15,12 @@ w = theano.shared(np.asarray(0., dtype=theano.config.floatX))
 y = model(X, w)
 
 cost = T.mean(T.sqr(y - Y))
+# Theano is good for gradient based learning
 gradient = T.grad(cost=cost, wrt=w)
 updates = [[w, w - gradient * 0.01]]
 
+# "symbolic graph"
+# allow_input_downcast (casting down to 32 bits)
 train = theano.function(inputs=[X, Y], outputs=cost, updates=updates, allow_input_downcast=True)
 
 for i in range(100):

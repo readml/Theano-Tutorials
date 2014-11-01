@@ -3,12 +3,14 @@ from theano import tensor as T
 import numpy as np
 from load import mnist
 
+# convert to float32/64 based on how you configured theano
 def floatX(X):
     return np.asarray(X, dtype=theano.config.floatX)
 
 def init_weights(shape):
     return theano.shared(floatX(np.random.randn(*shape) * 0.01))
 
+# Softmax Logistic Regression vs Sigmoid Logistic Regression
 def model(X, w):
     return T.nnet.softmax(T.dot(X, w))
 
@@ -19,9 +21,11 @@ Y = T.fmatrix()
 
 w = init_weights((784, 10))
 
+# probabilities of the labels given the input
 py_x = model(X, w)
 y_pred = T.argmax(py_x, axis=1)
 
+# maximize the value that's true
 cost = T.mean(T.nnet.categorical_crossentropy(py_x, Y))
 gradient = T.grad(cost=cost, wrt=w)
 update = [[w, w - gradient * 0.05]]
