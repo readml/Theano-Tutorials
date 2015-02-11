@@ -27,6 +27,7 @@ def model(X, w_h, w_o):
     FIXME:  Must use a Elementwise Theano Multiplication
     Hidden Outputs should be the individual hidden unit * weight.
     This will allow us to see the functions of the hidden units.
+    tensor.stacklists + tensor.prod(axis=1) might do the trick
 
     hidden_outputs = []
     for h_val, weight in zip(h, w_o):
