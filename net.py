@@ -23,28 +23,19 @@ def model(X, w_h, w_o):
     # hidden layer with sigmoid activation
     h = T.nnet.sigmoid(T.dot(X, w_h))
 
-    """
-    FIXME:  Must use a Elementwise Theano Multiplication
-    Hidden Outputs should be the individual hidden unit * weight.
-    This will allow us to see the functions of the hidden units.
-    tensor.stacklists + tensor.prod(axis=1) might do the trick
-
-    hidden_outputs = []
-    for h_val, weight in zip(h, w_o):
-        hidden_outputs.append(T.prod(h_val, weight))
-
-    # output layer with b`asic linear regression
-    out = T.sum(hidden_outputs)
-
-    return out, hidden_output
-    """
     out = T.dot(h, w_o)
     return out
 
-def create(func, xlow=-1.5, xhigh=1.5, bias=True):
+def hidden_out(X, w_h, w_o):
+    h = T.nnet.sigmoid(T.dot(X, w_h))
+
+    # transpose to do element wise mult
+    return h * w_o.T
+
+def create(func, xlow=-5.0, xhigh=5.0, bias=True):
     trX = np.linspace(xlow, xhigh, N_EXAMPLES + 1)
 
-    trY = func(trX) + np.random.randn()*0.05
+    trY = func(trX) + np.random.randn()*0.1
     
     if bias:
         trX = np.column_stack((np.ones(trX.shape[0]), trX))
@@ -81,7 +72,8 @@ input nodes   o  o
 w_h = init_weights((2, 3))
 w_o = init_weights((3, 1))
 
-out = model(X, w_h, w_o)
+out= model(X, w_h, w_o)
+hidden_out = hidden_out(X, w_h, w_o)
 
 cost = T.mean((out - y)**2)
 params = [w_h, w_o]
@@ -89,24 +81,25 @@ updates = sgd(cost, params)
 
 train = theano.function(inputs=[X, y], outputs=[cost, w_h], updates=updates, allow_input_downcast=True)
 predict = theano.function(inputs=[X], outputs=out, allow_input_downcast=True)
+predict_hidden_out = theano.function(inputs=[X], outputs=hidden_out, allow_input_downcast=True)
 
-
-for i in range(3 * 10**3):
+for i in range(5 * 10**3):
     for X, y in zip(trX, trY):
         # X is a row in trX. X is shape (2,)
         # y is an element of trY. y is shape () 
         cost, w_h = train(X, y)
 
-# def finaloutput():
-#     for x in trX
-#     retrn y_predict, h_unit0, h_unit1, h_unit2 
-
-# y_predict, h_unit0, h_unit1, h_unit2 = finaloutput()
-
 y_pred = [predict(x) for x in trX]
+
+hidden_outputs = np.array([predict_hidden_out(x)[0] for x in trX])
+
 plt.hold('on')
-plt.plot(y_pred, label='predict')
-plt.plot(trY, 'r.', label='ground truth')
+plt.plot(trX[:,1], y_pred, label='predict')
+plt.plot(trX[:,1], trY, 'r.', label='ground truth')
+
+for node_j in range(hidden_outputs.shape[1]):
+    plt.plot(trX[:,1], hidden_outputs[:,node_j], label='hidden unit %d' % node_j)
+
 plt.legend()
 plt.show()
 
