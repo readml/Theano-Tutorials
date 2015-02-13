@@ -20,6 +20,9 @@ def sgd(cost, params, lr=0.03):
     return updates
 
 def model(X, w_h, w_o):
+    """ do a dot product of weights and final hidden nodes to get the final
+    output
+    """
     # hidden layer with sigmoid activation
     h = T.nnet.sigmoid(T.dot(X, w_h))
 
@@ -27,9 +30,13 @@ def model(X, w_h, w_o):
     return out
 
 def hidden_out(X, w_h, w_o):
+    """ do an element wise multiply of final hidden node * weight.  This will
+    give the final output values for each node at the final layer.  These values,
+    added, would give the final output
+    """
     h = T.nnet.sigmoid(T.dot(X, w_h))
 
-    # transpose to do element wise mult
+    # transpose to do element wise multiply
     return h * w_o.T
 
 def create(func, xlow=-5.0, xhigh=5.0, bias=True):
@@ -91,6 +98,9 @@ for i in range(5 * 10**3):
 
 y_pred = [predict(x) for x in trX]
 
+# this captures the hidden output units in a matrix
+# where a row is the hidden unit outputs for a data example
+    # and a column is the value(s) for a particular hidden unit
 hidden_outputs = np.array([predict_hidden_out(x)[0] for x in trX])
 
 plt.hold('on')
