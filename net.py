@@ -4,25 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 N_EXAMPLES = 50
-EPOCHS = 2 * 10**2
-LEARNING_RATE = 0.1
-WEIGHT_INIT_STD = 0.5
+EPOCHS = 4 * 10**2
+LEARNING_RATE = 0.3
+WEIGHT_INIT_STD = 0.7
 X_DOMAIN = [-5.0, 5.0]
-
-
-trX, trY = sinusoid()
-
-print trX.shape
-print trY.shape
-
-def x2():
-    return create(func=np.square)
-
-def absolute():
-    return create(func=np.abs)
-
-def sinusoid():
-    return create(func=np.sin)
 
 def floatX(X):
     return np.asarray(X, dtype=theano.config.floatX)
@@ -67,6 +52,23 @@ def create(func, xlow=X_DOMAIN[0], xhigh=X_DOMAIN[1], bias=True, std=0.5):
         trX = np.column_stack((np.ones(trX.shape[0]), trX))
 
     return trX, trY
+
+def x2():
+    return create(func=np.square)
+
+def absolute():
+    return create(func=np.abs)
+
+def sinusoid():
+    return create(func=np.sin)
+
+def bessel():
+    return create(func=np.i0)
+
+trX, trY = sinusoid()
+
+print trX.shape
+print trY.shape
 
 # will train one row of X
 X = T.fvector(name='X') 
@@ -117,7 +119,7 @@ for node_j in range(hidden_outputs.shape[1]):
 
 plt.legend()
 plt.figtext(.5,.95,'learning rate | weight init std | num examples | epochs', fontsize=14, ha='center')
-plt.figtext(.5,.91,'{} | {} | {}'.format(LEARNING_RATE, WEIGHT_INIT_STD, N_EXAMPLES, EPOCHS),fontsize=14,ha='center')
+plt.figtext(.5,.91,'{} | {} | {} | {}'.format(LEARNING_RATE, WEIGHT_INIT_STD, N_EXAMPLES, EPOCHS),fontsize=14,ha='center')
 plt.show()
 
 
